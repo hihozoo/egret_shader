@@ -48,7 +48,8 @@ var SpecialEffects;
         };
         return IEffect;
     }());
-    __reflect(IEffect.prototype, "IEffect");
+    SpecialEffects.IEffect = IEffect;
+    __reflect(IEffect.prototype, "SpecialEffects.IEffect");
     /**
      * 创建特效对象
      * @param target egret.bitmap | eui.Image
@@ -66,10 +67,12 @@ var SpecialEffects;
             var _this = _super.call(this, target) || this;
             _this.uniform = {
                 brightness: 0,
-                contrast: 0
+                contrast: 0,
             };
             _this.refreshData();
-            target.filters = [createCustomFilter(BRIGHTNESS_CONTRAST_F_SHADER, _this.uniform)];
+            target.filters = [
+                createCustomFilter(BRIGHTNESS_CONTRAST_F_SHADER, _this.uniform),
+            ];
             return _this;
         }
         /**b -1~1 d -1~1 */
@@ -90,10 +93,12 @@ var SpecialEffects;
             var _this = _super.call(this, target) || this;
             _this.uniform = {
                 hue: 0,
-                saturation: 0
+                saturation: 0,
             };
             _this.refreshData();
-            target.filters = [createCustomFilter(HUE_SATURATION_F_SHADER, _this.uniform)];
+            target.filters = [
+                createCustomFilter(HUE_SATURATION_F_SHADER, _this.uniform),
+            ];
             return _this;
         }
         /**hue -1~1 saturation -1~1 */
@@ -107,39 +112,13 @@ var SpecialEffects;
     }(IEffect));
     SpecialEffects.EffectHueSaturation = EffectHueSaturation;
     __reflect(EffectHueSaturation.prototype, "SpecialEffects.EffectHueSaturation");
-    var EffectHSB = (function (_super) {
-        __extends(EffectHSB, _super);
-        function EffectHSB(target) {
-            var _this = _super.call(this, target) || this;
-            _this.uniform = {
-                hue: 0,
-                saturation: 0,
-                value: 0,
-            };
-            _this.refreshData();
-            target.filters = [createCustomFilter(HSV_F_SHADER, _this.uniform)];
-            return _this;
-        }
-        /**hue 0~360 saturation 0~1 */
-        EffectHSB.prototype.refreshData = function (hue, saturation, value) {
-            if (hue === void 0) { hue = 0; }
-            if (saturation === void 0) { saturation = 0; }
-            if (value === void 0) { value = 0; }
-            this.uniform.hue = q(0, hue, 360) / 360;
-            this.uniform.saturation = q(-100, saturation, 100) / 100;
-            this.uniform.value = q(-100, value, 100) / 100;
-        };
-        return EffectHSB;
-    }(IEffect));
-    SpecialEffects.EffectHSB = EffectHSB;
-    __reflect(EffectHSB.prototype, "SpecialEffects.EffectHSB");
     var EffectVibrance = (function (_super) {
         __extends(EffectVibrance, _super);
         /**亮度 */
         function EffectVibrance(target) {
             var _this = _super.call(this, target) || this;
             _this.uniform = {
-                amount: 0
+                amount: 0,
             };
             _this.refreshData();
             target.filters = [createCustomFilter(VIBRANCE_F_SHADER, _this.uniform)];
@@ -162,7 +141,7 @@ var SpecialEffects;
             _this.uniform = {
                 exponent: 0,
                 texSizeW: 0,
-                texSizeH: 0
+                texSizeH: 0,
             };
             _this.refreshData(0, target.width || 100, target.height || 100);
             target.filters = [createCustomFilter(DENOISE_F_SHADER, _this.uniform)];
@@ -196,7 +175,7 @@ var SpecialEffects;
         function EffectNoise(target) {
             var _this = _super.call(this, target) || this;
             _this.uniform = {
-                amount: 0
+                amount: 0,
             };
             _this.refreshData(0);
             target.filters = [createCustomFilter(NOISE_F_SHADER, _this.uniform)];
@@ -219,7 +198,7 @@ var SpecialEffects;
         function EffectSepia(target) {
             var _this = _super.call(this, target) || this;
             _this.uniform = {
-                amount: 0
+                amount: 0,
             };
             _this.refreshData(0);
             target.filters = [createCustomFilter(SEPIA_F_SHADER, _this.uniform)];
@@ -242,7 +221,7 @@ var SpecialEffects;
             var _this = _super.call(this, target) || this;
             _this.uniform = {
                 size: 0,
-                amount: 0
+                amount: 0,
             };
             _this.refreshData(0, 0);
             target.filters = [createCustomFilter(VIGNETTE_F_SHADER, _this.uniform)];
@@ -250,8 +229,7 @@ var SpecialEffects;
         }
         /** 0-1 */
         EffectVignette.prototype.refreshData = function (b, d) {
-            this.uniform.size = q(0, b, 1),
-                this.uniform.amount = q(0, d, 1);
+            (this.uniform.size = q(0, b, 1)), (this.uniform.amount = q(0, d, 1));
         };
         return EffectVignette;
     }(IEffect));
@@ -268,7 +246,7 @@ var SpecialEffects;
                 centerX: 0,
                 centerY: 0,
                 texSizeW: 0,
-                texSizeH: 0
+                texSizeH: 0,
             };
             _this.refreshData(0, target.width / 2, target.height / 2, target.width, target.height);
             target.filters = [createCustomFilter(ZOOM_BLUR_F_SHADER, _this.uniform)];
@@ -300,16 +278,16 @@ var SpecialEffects;
             var _this = _super.call(this, target) || this;
             _this.uniform = {
                 deltaX: 0,
-                deltaY: 0
+                deltaY: 0,
             };
             _this.uniform2 = {
                 deltaX: 0,
-                deltaY: 0
+                deltaY: 0,
             };
             _this.refreshData(0);
             target.filters = [
                 createCustomFilter(TRIANGLE_BLUR_F_SHADER, _this.uniform),
-                createCustomFilter(TRIANGLE_BLUR_F_SHADER, _this.uniform2)
+                createCustomFilter(TRIANGLE_BLUR_F_SHADER, _this.uniform2),
             ];
             return _this;
         }
@@ -338,7 +316,7 @@ var SpecialEffects;
                 deltaX: 0,
                 deltaY: 0,
                 texSizeW: 0,
-                texSizeH: 0
+                texSizeH: 0,
             };
             _this.uniform2 = {
                 blurRadius: 0,
@@ -350,12 +328,12 @@ var SpecialEffects;
                 deltaX: 0,
                 deltaY: 0,
                 texSizeW: 0,
-                texSizeH: 0
+                texSizeH: 0,
             };
             _this.refreshData(0, 0, 0, 0, _this.target.width, _this.target.height, _this.target.width, _this.target.height);
             target.filters = [
                 createCustomFilter(TILT_SHIFT_F_SHADER, _this.uniform),
-                createCustomFilter(TILT_SHIFT_F_SHADER, _this.uniform2)
+                createCustomFilter(TILT_SHIFT_F_SHADER, _this.uniform2),
             ];
             return _this;
         }
@@ -429,12 +407,10 @@ var SpecialEffects;
                 centerY: 0,
                 angle: 0,
                 texSizeW: 0,
-                texSizeH: 0
+                texSizeH: 0,
             };
             _this.refreshData(0, 0, _this.target.width / 2, _this.target.height / 2, _this.target.width, _this.target.height);
-            target.filters = [
-                createCustomFilter(SWIRL_F_SHADER, _this.uniform)
-            ];
+            target.filters = [createCustomFilter(SWIRL_F_SHADER, _this.uniform)];
             return _this;
         }
         /** 0-n */
@@ -470,12 +446,10 @@ var SpecialEffects;
                 centerY: 0,
                 strength: 0,
                 texSizeW: 0,
-                texSizeH: 0
+                texSizeH: 0,
             };
             _this.refreshData(0, 0, _this.target.width / 2, _this.target.height / 2, _this.target.width, _this.target.height);
-            target.filters = [
-                createCustomFilter(BULGE_PICH_F_SHADER, _this.uniform)
-            ];
+            target.filters = [createCustomFilter(BULGE_PICH_F_SHADER, _this.uniform)];
             return _this;
         }
         /** 0-n */
@@ -517,12 +491,28 @@ var SpecialEffects;
                 m0: 0,
                 texSizeW: 0,
                 texSizeH: 0,
-                useTextureSpace: 0
+                useTextureSpace: 0,
             };
-            _this.refreshData([0, 0, _this.target.width, 0, 0, _this.target.height, _this.target.width, _this.target.height], [0, 0, _this.target.width, 0, 0, _this.target.height, _this.target.width, _this.target.height], 0, _this.target.width, _this.target.height);
-            target.filters = [
-                createCustomFilter(PERSPECTIVE_F_SHADER, _this.uniform)
-            ];
+            _this.refreshData([
+                0,
+                0,
+                _this.target.width,
+                0,
+                0,
+                _this.target.height,
+                _this.target.width,
+                _this.target.height,
+            ], [
+                0,
+                0,
+                _this.target.width,
+                0,
+                0,
+                _this.target.height,
+                _this.target.width,
+                _this.target.height,
+            ], 0, _this.target.width, _this.target.height);
+            target.filters = [createCustomFilter(PERSPECTIVE_F_SHADER, _this.uniform)];
             return _this;
         }
         EffectPerspective.prototype.x = function (a, d, c, e, g, l, n, p) {
@@ -530,19 +520,49 @@ var SpecialEffects;
             g = a - c + g - n;
             l = d - e + l - p;
             var q = m * k - f * h, f = (g * k - f * l) / q, m = (m * l - g * h) / q;
-            return [c - a + f * c, e - d + f * e, f, n - a + m * n, p - d + m * p, m, a, d, 1];
+            return [
+                c - a + f * c,
+                e - d + f * e,
+                f,
+                n - a + m * n,
+                p - d + m * p,
+                m,
+                a,
+                d,
+                1,
+            ];
         };
         EffectPerspective.prototype.y = function (a) {
             var d = a[0], c = a[1], e = a[2], g = a[3], l = a[4], n = a[5], p = a[6], m = a[7];
             a = a[8];
             var f = d * l * a - d * n * m - c * g * a + c * n * p + e * g * m - e * l * p;
-            return [(l * a - n * m) / f, (e * m - c * a) / f, (c * n - e * l) / f, (n * p - g * a) / f, (d * a - e * p) / f, (e * g - d * n) / f, (g * m - l * p) / f, (c * p - d * m) / f, (d * l - c * g) / f];
+            return [
+                (l * a - n * m) / f,
+                (e * m - c * a) / f,
+                (c * n - e * l) / f,
+                (n * p - g * a) / f,
+                (d * a - e * p) / f,
+                (e * g - d * n) / f,
+                (g * m - l * p) / f,
+                (c * p - d * m) / f,
+                (d * l - c * g) / f,
+            ];
         };
         EffectPerspective.prototype.refreshData = function (d, a, useTextureSpace, width, height) {
             var c = this.x.apply(null, d);
             var e = this.x.apply(null, a);
             c = this.y(c);
-            return this.matrixWarp([c[0] * e[0] + c[1] * e[3] + c[2] * e[6], c[0] * e[1] + c[1] * e[4] + c[2] * e[7], c[0] * e[2] + c[1] * e[5] + c[2] * e[8], c[3] * e[0] + c[4] * e[3] + c[5] * e[6], c[3] * e[1] + c[4] * e[4] + c[5] * e[7], c[3] * e[2] + c[4] * e[5] + c[5] * e[8], c[6] * e[0] + c[7] * e[3] + c[8] * e[6], c[6] * e[1] + c[7] * e[4] + c[8] * e[7], c[6] * e[2] + c[7] * e[5] + c[8] * e[8]], 0, width, height);
+            return this.matrixWarp([
+                c[0] * e[0] + c[1] * e[3] + c[2] * e[6],
+                c[0] * e[1] + c[1] * e[4] + c[2] * e[7],
+                c[0] * e[2] + c[1] * e[5] + c[2] * e[8],
+                c[3] * e[0] + c[4] * e[3] + c[5] * e[6],
+                c[3] * e[1] + c[4] * e[4] + c[5] * e[7],
+                c[3] * e[2] + c[4] * e[5] + c[5] * e[8],
+                c[6] * e[0] + c[7] * e[3] + c[8] * e[6],
+                c[6] * e[1] + c[7] * e[4] + c[8] * e[7],
+                c[6] * e[2] + c[7] * e[5] + c[8] * e[8],
+            ], 0, width, height);
         };
         /** 0-n */
         EffectPerspective.prototype.matrixWarp = function (m, useTextureSpace, width, height) {

@@ -6796,6 +6796,9 @@ var egret;
                     else if (key === "uSamplerAlphaMask") {
                         uniforms[key].setValue(1);
                     }
+					else if (key === "uTime") {
+                        uniforms[key].setValue(egret.getTimer());
+                    }
                     else {
                         var value = filter.$uniforms[key];
                         if (value !== undefined) {
