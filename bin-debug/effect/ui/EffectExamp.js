@@ -81,6 +81,7 @@ var EffectExamp = (function (_super) {
                 t.initData(item);
                 y_1 += t.height;
             });
+            this.refresh();
         }
     };
     EffectExamp.prototype.refresh = function () {

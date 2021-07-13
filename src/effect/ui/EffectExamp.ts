@@ -73,6 +73,7 @@ class EffectExamp extends eui.Component{
 				t.initData(item)
 				y+=t.height
 			})
+			this.refresh();
 		}
 	}
 	public refresh(){
