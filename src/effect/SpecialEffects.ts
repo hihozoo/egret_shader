@@ -20,36 +20,12 @@ namespace SpecialEffects {
 		vColor = aColor;
 	}`;
 
-  const HUE_SATURATION_F_SHADER = `
-	precision lowp float;
-	varying vec4 vColor;
-	uniform sampler2D uSampler;
-	uniform float hue;
-	uniform float saturation;
-	varying vec2 vTextureCoord;
-	void main(){
-		vec4 color=texture2D(uSampler,vTextureCoord)*vColor;
-		float angle=hue*3.14159265;
-		float s=sin(angle),c=cos(angle);
-		vec3 weights=(vec3(2.0*c,-sqrt(3.0)*s-c,sqrt(3.0)*s-c)+1.0)/3.0;
-		float len=length(color.rgb);
-		color.rgb=vec3(dot(color.rgb,weights.xyz),dot(color.rgb,weights.zxy),dot(color.rgb,weights.yzx));
-		float average=(color.r+color.g+color.b)/3.0;
-		if(saturation>0.0){
-			color.rgb+=(average-color.rgb)*(1.0-1.0/(1.001-saturation));
-		}else{
-			color.rgb+=(average-color.rgb)*(-saturation);
-		}
-		gl_FragColor=color;
-	}`;
 
   const VIBRANCE_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float average=(color.r+color.g+color.b)/3.0;float mx=max(color.r,max(color.g,color.b));float amt=(mx-average)*(-amount*3.0);color.rgb=mix(color.rgb,vec3(mx),amt);gl_FragColor=color;}`;
   const DENOISE_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float exponent;uniform float strength;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec4 center=texture2D(uSampler,vTextureCoord)*vColor;vec4 color=vec4(0.0);float total=0.0;for(float x=-4.0;x<=4.0;x+=1.0){for(float y=-4.0;y<=4.0;y+=1.0){vec4 sample=texture2D(uSampler,vTextureCoord+vec2(x,y)/texSize)*vColor;float weight=1.0-abs(dot(sample.rgb-center.rgb,vec3(0.25)));weight=pow(weight,exponent);color+=sample*weight;total+=weight;}}gl_FragColor=color/total;}`;
   const NOISE_F_SHADER = `precision lowp float;varying vec2 vTextureCoord;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;float rand(vec2 co){return fract(sin(dot(co.xy,vec2(12.9898,78.233)))*43758.5453);}void main(void) {vec4 color=texture2D(uSampler, vTextureCoord) * vColor;float diff=(rand(vTextureCoord)-0.5)*amount;color.r+=diff;color.g+=diff;color.b+=diff;gl_FragColor=color;}`;
   const SEPIA_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float r=color.r;float g=color.g;float b=color.b;color.r=min(1.0,(r*(1.0-(0.607*amount)))+(g*(0.769*amount))+(b*(0.189*amount)));color.g=min(1.0,(r*0.349*amount)+(g*(1.0-(0.314*amount)))+(b*0.168*amount));color.b=min(1.0,(r*0.272*amount)+(g*0.534*amount)+(b*(1.0-(0.869*amount))));gl_FragColor=color;}`;
-  const VIGNETTE_F_SHADER =
-    "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float size;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float dist=distance(vTextureCoord,vec2(0.5,0.5));color.rgb*=smoothstep(0.8,size*0.799,dist*(amount+size));gl_FragColor=color;}";
-  const ZOOM_BLUR_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float strength;varying vec2 vTextureCoord;uniform float centerX;uniform float centerY;uniform float texSizeW;uniform float texSizeH;float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec2 center = vec2(centerX,centerY);vec4 color=vec4(0.0);float total=0.0;vec2 toCenter=center-vTextureCoord*texSize;float offset=random(vec3(12.9898,78.233,151.7182),0.0);for(float t=0.0;t<=40.0;t++){float percent=(t+offset)/40.0;float weight=4.0*(percent-percent*percent);vec4 sample=texture2D(uSampler,vTextureCoord+toCenter*percent*strength/texSize);sample.rgb*=sample.a;color+=sample*weight;total+=weight;}gl_FragColor=color/total;gl_FragColor.rgb/=gl_FragColor.a+0.00001;}`;
+   const ZOOM_BLUR_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float strength;varying vec2 vTextureCoord;uniform float centerX;uniform float centerY;uniform float texSizeW;uniform float texSizeH;float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec2 center = vec2(centerX,centerY);vec4 color=vec4(0.0);float total=0.0;vec2 toCenter=center-vTextureCoord*texSize;float offset=random(vec3(12.9898,78.233,151.7182),0.0);for(float t=0.0;t<=40.0;t++){float percent=(t+offset)/40.0;float weight=4.0*(percent-percent*percent);vec4 sample=texture2D(uSampler,vTextureCoord+toCenter*percent*strength/texSize);sample.rgb*=sample.a;color+=sample*weight;total+=weight;}gl_FragColor=color/total;gl_FragColor.rgb/=gl_FragColor.a+0.00001;}`;
   const TRIANGLE_BLUR_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform vec2 delta;uniform float deltaX;uniform float deltaY;varying vec2 vTextureCoord;float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}void main(){vec2 delta = vec2(deltaX,deltaY);vec4 color=vec4(0.0);float total=0.0;float offset=random(vec3(12.9898,78.233,151.7182),0.0);for(float t=-30.0;t<=30.0;t++){float percent=(t+offset-0.5)/30.0;float weight=1.0-abs(percent);vec4 sample=texture2D(uSampler,vTextureCoord+delta*percent)*vColor;sample.rgb*=sample.a;color+=sample*weight;total+=weight;}gl_FragColor=color/total;gl_FragColor.rgb/=gl_FragColor.a+0.00001;}`;
   const TILT_SHIFT_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float blurRadius;uniform float gradientRadius;uniform float startX;uniform float startY;uniform float endX;uniform float endY;uniform float deltaX;uniform float deltaY;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}void main(){vec2 start = vec2(startX,startY);vec2 end = vec2(endX,endY);vec2 delta = vec2(deltaX,deltaY);vec2 texSize = vec2(texSizeW,texSizeH);vec4 color=vec4(0.0);float total=0.0;float offset=random(vec3(12.9898,78.233,151.7182),0.0);vec2 normal=normalize(vec2(start.y-end.y,end.x-start.x));float radius=smoothstep(0.0,1.0,abs(dot(vTextureCoord*texSize-start,normal))/gradientRadius)*blurRadius;for(float t=-30.0;t<=30.0;t++){float percent=(t+offset-0.5)/30.0;float weight=1.0-abs(percent);vec4 sample=texture2D(uSampler,vTextureCoord+delta/texSize*percent*radius)*vColor;sample.rgb*=sample.a;color+=sample*weight;total+=weight;}gl_FragColor=color/total;gl_FragColor.rgb/=gl_FragColor.a+0.00001;}`;
   const SWIRL_F_SHADER = `precision lowp float;varying vec2 vTextureCoord;varying vec4 vColor;uniform sampler2D uSampler;uniform float radius;uniform float angle;uniform float centerX;uniform float centerY;uniform float texSizeW;uniform float texSizeH;void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec2 center = vec2(centerX,centerY);vec2 coord=vTextureCoord*texSize;coord-=center;float distance=length(coord);if(distance<radius){float percent=(radius-distance)/radius;float theta=percent*percent*angle;float s=sin(theta);float c=cos(theta);coord=vec2(coord.x*c-coord.y*s,coord.x*s+coord.y*c);}coord+=center;vec2 result = coord/texSize;if(result.x < 0.0 || result.y < 0.0 || result.x > 1.0 || result.y>1.0){gl_FragColor=vec4(0.0,0.0,0.0,0.0);return;}gl_FragColor=texture2D(uSampler,result)*vColor;vec2 clampedCoord=clamp(coord,vec2(0.0),texSize);if(coord!=clampedCoord){gl_FragColor.a*=max(0.0,1.0-length(coord-clampedCoord));}}`;
@@ -86,46 +62,6 @@ namespace SpecialEffects {
   export const createEffects = function (target, effectClass): IEffect {
     return new effectClass(target);
   };
-  export class EffectBrightnessContrast extends IEffect {
-    protected uniform = {
-      brightness: 0,
-      contrast: 0,
-    };
-    /**
-     * 明亮对比度
-     */
-    public constructor(target) {
-      super(target);
-      this.refreshData();
-      target.filters = [
-        createCustomFilter(BRIGHTNESS_CONTRAST_F_SHADER, this.uniform),
-      ];
-    }
-    /**b -1~1 d -1~1 */
-    public refreshData(b = 0, d = 0) {
-      this.uniform.brightness = q(-1, b, 1);
-      this.uniform.contrast = q(-1, d, 1);
-    }
-  }
-  export class EffectHueSaturation extends IEffect {
-    protected uniform = {
-      hue: 0,
-      saturation: 0,
-    };
-    /**饱和度 */
-    public constructor(target) {
-      super(target);
-      this.refreshData();
-      target.filters = [
-        createCustomFilter(HUE_SATURATION_F_SHADER, this.uniform),
-      ];
-    }
-    /**hue -1~1 saturation -1~1 */
-    public refreshData(hue = 0, saturation = 0) {
-      this.uniform.hue = q(-1, hue, 1);
-      this.uniform.saturation = q(-1, saturation, 1);
-    }
-  }
 
   export class EffectVibrance extends IEffect {
     protected uniform = {
@@ -200,24 +136,7 @@ namespace SpecialEffects {
       this.uniform.amount = q(0, a, 1);
     }
   }
-  /**
-   * 序幕
-   */
-  export class EffectVignette extends IEffect {
-    protected uniform = {
-      size: 0,
-      amount: 0,
-    };
-    public constructor(target) {
-      super(target);
-      this.refreshData(0, 0);
-      target.filters = [createCustomFilter(VIGNETTE_F_SHADER, this.uniform)];
-    }
-    /** 0-1 */
-    public refreshData(b, d) {
-      (this.uniform.size = q(0, b, 1)), (this.uniform.amount = q(0, d, 1));
-    }
-  }
+
   /**
    */
   export class EffectZoomblur extends IEffect {

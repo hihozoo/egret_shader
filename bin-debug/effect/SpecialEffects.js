@@ -18,12 +18,10 @@ r.prototype = e.prototype, t.prototype = new r();
 var SpecialEffects;
 (function (SpecialEffects) {
     var V_SHADER = "\n\tattribute vec2 aVertexPosition;\n\tattribute vec2 aTextureCoord;\n\tattribute vec4 aColor;\n\tuniform vec2 projectionVector;\n\tvarying vec2 vTextureCoord;\n\tvarying vec4 vColor;\n\tconst vec2 center = vec2(-1.0, 1.0);\n\tvoid main(void) {\n\t\tgl_Position = vec4( (aVertexPosition / projectionVector) + center , 0.0, 1.0);\n\t\tvTextureCoord = aTextureCoord;\n\t\tvColor = aColor;\n\t}";
-    var HUE_SATURATION_F_SHADER = "\n\tprecision lowp float;\n\tvarying vec4 vColor;\n\tuniform sampler2D uSampler;\n\tuniform float hue;\n\tuniform float saturation;\n\tvarying vec2 vTextureCoord;\n\tvoid main(){\n\t\tvec4 color=texture2D(uSampler,vTextureCoord)*vColor;\n\t\tfloat angle=hue*3.14159265;\n\t\tfloat s=sin(angle),c=cos(angle);\n\t\tvec3 weights=(vec3(2.0*c,-sqrt(3.0)*s-c,sqrt(3.0)*s-c)+1.0)/3.0;\n\t\tfloat len=length(color.rgb);\n\t\tcolor.rgb=vec3(dot(color.rgb,weights.xyz),dot(color.rgb,weights.zxy),dot(color.rgb,weights.yzx));\n\t\tfloat average=(color.r+color.g+color.b)/3.0;\n\t\tif(saturation>0.0){\n\t\t\tcolor.rgb+=(average-color.rgb)*(1.0-1.0/(1.001-saturation));\n\t\t}else{\n\t\t\tcolor.rgb+=(average-color.rgb)*(-saturation);\n\t\t}\n\t\tgl_FragColor=color;\n\t}";
     var VIBRANCE_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float average=(color.r+color.g+color.b)/3.0;float mx=max(color.r,max(color.g,color.b));float amt=(mx-average)*(-amount*3.0);color.rgb=mix(color.rgb,vec3(mx),amt);gl_FragColor=color;}";
     var DENOISE_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float exponent;uniform float strength;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec4 center=texture2D(uSampler,vTextureCoord)*vColor;vec4 color=vec4(0.0);float total=0.0;for(float x=-4.0;x<=4.0;x+=1.0){for(float y=-4.0;y<=4.0;y+=1.0){vec4 sample=texture2D(uSampler,vTextureCoord+vec2(x,y)/texSize)*vColor;float weight=1.0-abs(dot(sample.rgb-center.rgb,vec3(0.25)));weight=pow(weight,exponent);color+=sample*weight;total+=weight;}}gl_FragColor=color/total;}";
     var NOISE_F_SHADER = "precision lowp float;varying vec2 vTextureCoord;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;float rand(vec2 co){return fract(sin(dot(co.xy,vec2(12.9898,78.233)))*43758.5453);}void main(void) {vec4 color=texture2D(uSampler, vTextureCoord) * vColor;float diff=(rand(vTextureCoord)-0.5)*amount;color.r+=diff;color.g+=diff;color.b+=diff;gl_FragColor=color;}";
     var SEPIA_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float r=color.r;float g=color.g;float b=color.b;color.r=min(1.0,(r*(1.0-(0.607*amount)))+(g*(0.769*amount))+(b*(0.189*amount)));color.g=min(1.0,(r*0.349*amount)+(g*(1.0-(0.314*amount)))+(b*0.168*amount));color.b=min(1.0,(r*0.272*amount)+(g*0.534*amount)+(b*(1.0-(0.869*amount))));gl_FragColor=color;}";
-    var VIGNETTE_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float size;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float dist=distance(vTextureCoord,vec2(0.5,0.5));color.rgb*=smoothstep(0.8,size*0.799,dist*(amount+size));gl_FragColor=color;}";
     var ZOOM_BLUR_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float strength;varying vec2 vTextureCoord;uniform float centerX;uniform float centerY;uniform float texSizeW;uniform float texSizeH;float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec2 center = vec2(centerX,centerY);vec4 color=vec4(0.0);float total=0.0;vec2 toCenter=center-vTextureCoord*texSize;float offset=random(vec3(12.9898,78.233,151.7182),0.0);for(float t=0.0;t<=40.0;t++){float percent=(t+offset)/40.0;float weight=4.0*(percent-percent*percent);vec4 sample=texture2D(uSampler,vTextureCoord+toCenter*percent*strength/texSize);sample.rgb*=sample.a;color+=sample*weight;total+=weight;}gl_FragColor=color/total;gl_FragColor.rgb/=gl_FragColor.a+0.00001;}";
     var TRIANGLE_BLUR_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform vec2 delta;uniform float deltaX;uniform float deltaY;varying vec2 vTextureCoord;float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}void main(){vec2 delta = vec2(deltaX,deltaY);vec4 color=vec4(0.0);float total=0.0;float offset=random(vec3(12.9898,78.233,151.7182),0.0);for(float t=-30.0;t<=30.0;t++){float percent=(t+offset-0.5)/30.0;float weight=1.0-abs(percent);vec4 sample=texture2D(uSampler,vTextureCoord+delta*percent)*vColor;sample.rgb*=sample.a;color+=sample*weight;total+=weight;}gl_FragColor=color/total;gl_FragColor.rgb/=gl_FragColor.a+0.00001;}";
     var TILT_SHIFT_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float blurRadius;uniform float gradientRadius;uniform float startX;uniform float startY;uniform float endX;uniform float endY;uniform float deltaX;uniform float deltaY;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}void main(){vec2 start = vec2(startX,startY);vec2 end = vec2(endX,endY);vec2 delta = vec2(deltaX,deltaY);vec2 texSize = vec2(texSizeW,texSizeH);vec4 color=vec4(0.0);float total=0.0;float offset=random(vec3(12.9898,78.233,151.7182),0.0);vec2 normal=normalize(vec2(start.y-end.y,end.x-start.x));float radius=smoothstep(0.0,1.0,abs(dot(vTextureCoord*texSize-start,normal))/gradientRadius)*blurRadius;for(float t=-30.0;t<=30.0;t++){float percent=(t+offset-0.5)/30.0;float weight=1.0-abs(percent);vec4 sample=texture2D(uSampler,vTextureCoord+delta/texSize*percent*radius)*vColor;sample.rgb*=sample.a;color+=sample*weight;total+=weight;}gl_FragColor=color/total;gl_FragColor.rgb/=gl_FragColor.a+0.00001;}";
@@ -58,60 +56,6 @@ var SpecialEffects;
     SpecialEffects.createEffects = function (target, effectClass) {
         return new effectClass(target);
     };
-    var EffectBrightnessContrast = (function (_super) {
-        __extends(EffectBrightnessContrast, _super);
-        /**
-         * 明亮对比度
-         */
-        function EffectBrightnessContrast(target) {
-            var _this = _super.call(this, target) || this;
-            _this.uniform = {
-                brightness: 0,
-                contrast: 0,
-            };
-            _this.refreshData();
-            target.filters = [
-                createCustomFilter(BRIGHTNESS_CONTRAST_F_SHADER, _this.uniform),
-            ];
-            return _this;
-        }
-        /**b -1~1 d -1~1 */
-        EffectBrightnessContrast.prototype.refreshData = function (b, d) {
-            if (b === void 0) { b = 0; }
-            if (d === void 0) { d = 0; }
-            this.uniform.brightness = q(-1, b, 1);
-            this.uniform.contrast = q(-1, d, 1);
-        };
-        return EffectBrightnessContrast;
-    }(IEffect));
-    SpecialEffects.EffectBrightnessContrast = EffectBrightnessContrast;
-    __reflect(EffectBrightnessContrast.prototype, "SpecialEffects.EffectBrightnessContrast");
-    var EffectHueSaturation = (function (_super) {
-        __extends(EffectHueSaturation, _super);
-        /**饱和度 */
-        function EffectHueSaturation(target) {
-            var _this = _super.call(this, target) || this;
-            _this.uniform = {
-                hue: 0,
-                saturation: 0,
-            };
-            _this.refreshData();
-            target.filters = [
-                createCustomFilter(HUE_SATURATION_F_SHADER, _this.uniform),
-            ];
-            return _this;
-        }
-        /**hue -1~1 saturation -1~1 */
-        EffectHueSaturation.prototype.refreshData = function (hue, saturation) {
-            if (hue === void 0) { hue = 0; }
-            if (saturation === void 0) { saturation = 0; }
-            this.uniform.hue = q(-1, hue, 1);
-            this.uniform.saturation = q(-1, saturation, 1);
-        };
-        return EffectHueSaturation;
-    }(IEffect));
-    SpecialEffects.EffectHueSaturation = EffectHueSaturation;
-    __reflect(EffectHueSaturation.prototype, "SpecialEffects.EffectHueSaturation");
     var EffectVibrance = (function (_super) {
         __extends(EffectVibrance, _super);
         /**亮度 */
@@ -212,29 +156,6 @@ var SpecialEffects;
     }(IEffect));
     SpecialEffects.EffectSepia = EffectSepia;
     __reflect(EffectSepia.prototype, "SpecialEffects.EffectSepia");
-    /**
-     * 序幕
-     */
-    var EffectVignette = (function (_super) {
-        __extends(EffectVignette, _super);
-        function EffectVignette(target) {
-            var _this = _super.call(this, target) || this;
-            _this.uniform = {
-                size: 0,
-                amount: 0,
-            };
-            _this.refreshData(0, 0);
-            target.filters = [createCustomFilter(VIGNETTE_F_SHADER, _this.uniform)];
-            return _this;
-        }
-        /** 0-1 */
-        EffectVignette.prototype.refreshData = function (b, d) {
-            (this.uniform.size = q(0, b, 1)), (this.uniform.amount = q(0, d, 1));
-        };
-        return EffectVignette;
-    }(IEffect));
-    SpecialEffects.EffectVignette = EffectVignette;
-    __reflect(EffectVignette.prototype, "SpecialEffects.EffectVignette");
     /**
      */
     var EffectZoomblur = (function (_super) {
