@@ -140,8 +140,8 @@ namespace SpecialEffects{
 		/**hue 0~360 saturation 0~1 */
 		public refreshData(hue = 0,saturation = 0, value = 0){
             this.uniform.hue = q(0, hue, 360);
-            this.uniform.saturation = q(0, saturation, 1);
-            this.uniform.value = q(0, value, 1);
+            this.uniform.saturation = q(-1, saturation, 1);
+            this.uniform.value = q(-1, value, 1);
         }
 	}
 

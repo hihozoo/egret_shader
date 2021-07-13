@@ -1,4 +1,5 @@
 let HSV_F_SHADER = `
+	precision lowp float;
 	uniform sampler2D uSampler;
 	varying vec2 vTextureCoord;
 
@@ -7,31 +8,31 @@ let HSV_F_SHADER = `
 	uniform float value;
 
 	mediump vec3 rgb2hsv(mediump vec3 rgb){
-		mediump float mx = max(max(rgb.x, rgb.y), rgb.z);
-		mediump float mn = min(min(rgb.x, rgb.y), rgb.z);
+		mediump float rgb_max = max(max(rgb.x, rgb.y), rgb.z);
+		mediump float rgb_min = min(min(rgb.x, rgb.y), rgb.z);
 	
 		mediump float h;
 		mediump float s;
 		mediump float v;
 	
-		mediump float df = mx - mn;
-		if(mx == mn){
+		mediump float df = rgb_max - rgb_min;
+		if(rgb_max == rgb_min){
 			h = 0.0;
-		} else if (mx == rgb.x){
+		} else if (rgb_max == rgb.x){
 			h = (60.0 * ((rgb.y-rgb.z)/df) + 360.0);
-		} else if (mx == rgb.y){
+		} else if (rgb_max == rgb.y){
 			h = (60.0 * ((rgb.z-rgb.x)/df) + 120.0);
 		} else {
 			h = (60.0 * ((rgb.x-rgb.y)/df) + 240.0);
 		}
 	
-		if(mx == 0.0){
+		if(rgb_max == 0.0){
 			s = 0.0;
 		} else {
-			s = df / mx;
+			s = df / rgb_max;
 		}
 	
-		v = mx;
+		v = rgb_max;
 		mediump vec3 hsv = vec3(h, s, v);
 		return hsv;
 	}
@@ -102,9 +103,9 @@ let HSV_F_SHADER = `
 
 	void main(){
 		vec4 ori_rgb = texture2D(uSampler, vTextureCoord);
-		vec3 rgb = ori_rgb.rgb;
+		vec3 rgb = vec3(ori_rgb.r, ori_rgb.g, ori_rgb.b);
 
-		if (hue != 0.0){
+		if (1.0 > 0.0){
 			mediump vec3 hsv = rgb2hsv(rgb);
 
 			// 调整h值
@@ -120,7 +121,7 @@ let HSV_F_SHADER = `
 			rgb = hsv2rgb(new_hsv);
 		}
 
-		if (value != 0.0){
+		if (1.0 > 0.0){
 			if (value > 0.0){
 				rgb.r = rgb.r + (1.0 - rgb.r) * value;
 				rgb.g = rgb.g + (1.0 - rgb.g) * value;
@@ -132,7 +133,7 @@ let HSV_F_SHADER = `
 			}
 		}
 
-		gl_FragColor = vec4(rgb , ori_rgb.a);
+		gl_FragColor = vec4(rgb * ori_rgb.a, ori_rgb.a);
 	}
 
 `
