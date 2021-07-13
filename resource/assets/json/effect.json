@@ -37,8 +37,8 @@
       ]
     },
     {
-      "name": "HSB",
-      "class": "EffectHSB",
+      "name": "HSV",
+      "class": "EffectHSV",
       "attr": [
         {
           "name": "Hue",
