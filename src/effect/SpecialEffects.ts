@@ -20,8 +20,7 @@ namespace SpecialEffects{
 		vColor = aColor;
 	}`;
 
-    const BRIGHTNESS_CONTRAST_F_SHADER =`precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float brightness;uniform float contrast;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;color.rgb+=brightness;if(contrast>0.0){color.rgb=(color.rgb-0.5)/(1.0-contrast)+0.5;}else{color.rgb=(color.rgb-0.5)*(1.0+contrast)+0.5;}gl_FragColor=color;}`;
-    
+
 	const HUE_SATURATION_F_SHADER =`
 	precision lowp float;
 	varying vec4 vColor;
@@ -126,7 +125,7 @@ namespace SpecialEffects{
         }
     }
 
-	export class EffectHSV extends IEffect{
+	export class EffectHSB extends IEffect{
 		protected uniform = {
 			hue: 0,
 			saturation: 0,
@@ -139,9 +138,9 @@ namespace SpecialEffects{
         }
 		/**hue 0~360 saturation 0~1 */
 		public refreshData(hue = 0,saturation = 0, value = 0){
-            this.uniform.hue = q(0, hue, 360);
-            this.uniform.saturation = q(-1, saturation, 1);
-            this.uniform.value = q(-1, value, 1);
+            this.uniform.hue = q(0, hue, 360) / 360;
+            this.uniform.saturation = q(-100, saturation, 100) / 100;
+            this.uniform.value = q(-100, value, 100) / 100;
         }
 	}
 

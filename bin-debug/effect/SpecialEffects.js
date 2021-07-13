@@ -18,7 +18,6 @@ r.prototype = e.prototype, t.prototype = new r();
 var SpecialEffects;
 (function (SpecialEffects) {
     var V_SHADER = "\n\tattribute vec2 aVertexPosition;\n\tattribute vec2 aTextureCoord;\n\tattribute vec4 aColor;\n\tuniform vec2 projectionVector;\n\tvarying vec2 vTextureCoord;\n\tvarying vec4 vColor;\n\tconst vec2 center = vec2(-1.0, 1.0);\n\tvoid main(void) {\n\t\tgl_Position = vec4( (aVertexPosition / projectionVector) + center , 0.0, 1.0);\n\t\tvTextureCoord = aTextureCoord;\n\t\tvColor = aColor;\n\t}";
-    var BRIGHTNESS_CONTRAST_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float brightness;uniform float contrast;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;color.rgb+=brightness;if(contrast>0.0){color.rgb=(color.rgb-0.5)/(1.0-contrast)+0.5;}else{color.rgb=(color.rgb-0.5)*(1.0+contrast)+0.5;}gl_FragColor=color;}";
     var HUE_SATURATION_F_SHADER = "\n\tprecision lowp float;\n\tvarying vec4 vColor;\n\tuniform sampler2D uSampler;\n\tuniform float hue;\n\tuniform float saturation;\n\tvarying vec2 vTextureCoord;\n\tvoid main(){\n\t\tvec4 color=texture2D(uSampler,vTextureCoord)*vColor;\n\t\tfloat angle=hue*3.14159265;\n\t\tfloat s=sin(angle),c=cos(angle);\n\t\tvec3 weights=(vec3(2.0*c,-sqrt(3.0)*s-c,sqrt(3.0)*s-c)+1.0)/3.0;\n\t\tfloat len=length(color.rgb);\n\t\tcolor.rgb=vec3(dot(color.rgb,weights.xyz),dot(color.rgb,weights.zxy),dot(color.rgb,weights.yzx));\n\t\tfloat average=(color.r+color.g+color.b)/3.0;\n\t\tif(saturation>0.0){\n\t\t\tcolor.rgb+=(average-color.rgb)*(1.0-1.0/(1.001-saturation));\n\t\t}else{\n\t\t\tcolor.rgb+=(average-color.rgb)*(-saturation);\n\t\t}\n\t\tgl_FragColor=color;\n\t}";
     var VIBRANCE_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float average=(color.r+color.g+color.b)/3.0;float mx=max(color.r,max(color.g,color.b));float amt=(mx-average)*(-amount*3.0);color.rgb=mix(color.rgb,vec3(mx),amt);gl_FragColor=color;}";
     var DENOISE_F_SHADER = "precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float exponent;uniform float strength;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec4 center=texture2D(uSampler,vTextureCoord)*vColor;vec4 color=vec4(0.0);float total=0.0;for(float x=-4.0;x<=4.0;x+=1.0){for(float y=-4.0;y<=4.0;y+=1.0){vec4 sample=texture2D(uSampler,vTextureCoord+vec2(x,y)/texSize)*vColor;float weight=1.0-abs(dot(sample.rgb-center.rgb,vec3(0.25)));weight=pow(weight,exponent);color+=sample*weight;total+=weight;}}gl_FragColor=color/total;}";
@@ -108,9 +107,9 @@ var SpecialEffects;
     }(IEffect));
     SpecialEffects.EffectHueSaturation = EffectHueSaturation;
     __reflect(EffectHueSaturation.prototype, "SpecialEffects.EffectHueSaturation");
-    var EffectHSV = (function (_super) {
-        __extends(EffectHSV, _super);
-        function EffectHSV(target) {
+    var EffectHSB = (function (_super) {
+        __extends(EffectHSB, _super);
+        function EffectHSB(target) {
             var _this = _super.call(this, target) || this;
             _this.uniform = {
                 hue: 0,
@@ -122,18 +121,18 @@ var SpecialEffects;
             return _this;
         }
         /**hue 0~360 saturation 0~1 */
-        EffectHSV.prototype.refreshData = function (hue, saturation, value) {
+        EffectHSB.prototype.refreshData = function (hue, saturation, value) {
             if (hue === void 0) { hue = 0; }
             if (saturation === void 0) { saturation = 0; }
             if (value === void 0) { value = 0; }
-            this.uniform.hue = q(0, hue, 360);
-            this.uniform.saturation = q(-1, saturation, 1);
-            this.uniform.value = q(-1, value, 1);
+            this.uniform.hue = q(0, hue, 360) / 360;
+            this.uniform.saturation = q(-100, saturation, 100) / 100;
+            this.uniform.value = q(-100, value, 100) / 100;
         };
-        return EffectHSV;
+        return EffectHSB;
     }(IEffect));
-    SpecialEffects.EffectHSV = EffectHSV;
-    __reflect(EffectHSV.prototype, "SpecialEffects.EffectHSV");
+    SpecialEffects.EffectHSB = EffectHSB;
+    __reflect(EffectHSB.prototype, "SpecialEffects.EffectHSB");
     var EffectVibrance = (function (_super) {
         __extends(EffectVibrance, _super);
         /**亮度 */
