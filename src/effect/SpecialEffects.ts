@@ -6,9 +6,45 @@
  * @author doudou
  */
 namespace SpecialEffects{
-    const V_SHADER = `attribute vec2 aVertexPosition;attribute vec2 aTextureCoord;attribute vec4 aColor;uniform vec2 projectionVector;varying vec2 vTextureCoord;varying vec4 vColor;const vec2 center = vec2(-1.0, 1.0);void main(void) {gl_Position = vec4( (aVertexPosition / projectionVector) + center , 0.0, 1.0);vTextureCoord = aTextureCoord;vColor = aColor;}`;
+    const V_SHADER = `
+	attribute vec2 aVertexPosition;
+	attribute vec2 aTextureCoord;
+	attribute vec4 aColor;
+	uniform vec2 projectionVector;
+	varying vec2 vTextureCoord;
+	varying vec4 vColor;
+	const vec2 center = vec2(-1.0, 1.0);
+	void main(void) {
+		gl_Position = vec4( (aVertexPosition / projectionVector) + center , 0.0, 1.0);
+		vTextureCoord = aTextureCoord;
+		vColor = aColor;
+	}`;
+	
     const BRIGHTNESS_CONTRAST_F_SHADER =`precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float brightness;uniform float contrast;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;color.rgb+=brightness;if(contrast>0.0){color.rgb=(color.rgb-0.5)/(1.0-contrast)+0.5;}else{color.rgb=(color.rgb-0.5)*(1.0+contrast)+0.5;}gl_FragColor=color;}`;
-    const HUE_SATURATION_F_SHADER =`precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float hue;uniform float saturation;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float angle=hue*3.14159265;float s=sin(angle),c=cos(angle);vec3 weights=(vec3(2.0*c,-sqrt(3.0)*s-c,sqrt(3.0)*s-c)+1.0)/3.0;float len=length(color.rgb);color.rgb=vec3(dot(color.rgb,weights.xyz),dot(color.rgb,weights.zxy),dot(color.rgb,weights.yzx));float average=(color.r+color.g+color.b)/3.0;if(saturation>0.0){color.rgb+=(average-color.rgb)*(1.0-1.0/(1.001-saturation));}else{color.rgb+=(average-color.rgb)*(-saturation);}gl_FragColor=color;}`;
+    
+	const HUE_SATURATION_F_SHADER =`
+	precision lowp float;
+	varying vec4 vColor;
+	uniform sampler2D uSampler;
+	uniform float hue;
+	uniform float saturation;
+	varying vec2 vTextureCoord;
+	void main(){
+		vec4 color=texture2D(uSampler,vTextureCoord)*vColor;
+		float angle=hue*3.14159265;
+		float s=sin(angle),c=cos(angle);
+		vec3 weights=(vec3(2.0*c,-sqrt(3.0)*s-c,sqrt(3.0)*s-c)+1.0)/3.0;
+		float len=length(color.rgb);
+		color.rgb=vec3(dot(color.rgb,weights.xyz),dot(color.rgb,weights.zxy),dot(color.rgb,weights.yzx));
+		float average=(color.r+color.g+color.b)/3.0;
+		if(saturation>0.0){
+			color.rgb+=(average-color.rgb)*(1.0-1.0/(1.001-saturation));
+		}else{
+			color.rgb+=(average-color.rgb)*(-saturation);
+		}
+		gl_FragColor=color;
+	}`;
+
     const VIBRANCE_F_SHADER = `precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;float average=(color.r+color.g+color.b)/3.0;float mx=max(color.r,max(color.g,color.b));float amt=(mx-average)*(-amount*3.0);color.rgb=mix(color.rgb,vec3(mx),amt);gl_FragColor=color;}`;
     const DENOISE_F_SHADER=`precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float exponent;uniform float strength;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;void main(){vec2 texSize = vec2(texSizeW,texSizeH);vec4 center=texture2D(uSampler,vTextureCoord)*vColor;vec4 color=vec4(0.0);float total=0.0;for(float x=-4.0;x<=4.0;x+=1.0){for(float y=-4.0;y<=4.0;y+=1.0){vec4 sample=texture2D(uSampler,vTextureCoord+vec2(x,y)/texSize)*vColor;float weight=1.0-abs(dot(sample.rgb-center.rgb,vec3(0.25)));weight=pow(weight,exponent);color+=sample*weight;total+=weight;}}gl_FragColor=color/total;}`;
     const NOISE_F_SHADER =`precision lowp float;varying vec2 vTextureCoord;varying vec4 vColor;uniform sampler2D uSampler;uniform float amount;float rand(vec2 co){return fract(sin(dot(co.xy,vec2(12.9898,78.233)))*43758.5453);}void main(void) {vec4 color=texture2D(uSampler, vTextureCoord) * vColor;float diff=(rand(vTextureCoord)-0.5)*amount;color.r+=diff;color.g+=diff;color.b+=diff;gl_FragColor=color;}`;
@@ -21,7 +57,10 @@ namespace SpecialEffects{
 
     const BULGE_PICH_F_SHADER =`precision lowp float;uniform float radius;varying vec4 vColor;uniform float strength;uniform sampler2D uSampler;uniform float centerX;uniform float centerY;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;void main(){vec2 center = vec2(centerX,centerY);vec2 texSize = vec2(texSizeW,texSizeH);vec2 coord=vTextureCoord*texSize;coord-=center;float distance=length(coord);if(distance<radius){float percent=distance/radius;if(strength>0.0){coord*=mix(1.0,smoothstep(0.0,radius/distance,percent),strength*0.75);}else{coord*=mix(1.0,pow(percent,1.0+strength*0.75)*radius/distance,1.0-percent);}}coord+=center;vec2 result = coord/texSize;if(result.x < 0.0 || result.y < 0.0 || result.x > 1.0 || result.y>1.0){gl_FragColor=vec4(0.0,0.0,0.0,0.0);return;}gl_FragColor=texture2D(uSampler,result)*vColor;vec2 clampedCoord=clamp(coord,vec2(0.0),texSize);if(coord!=clampedCoord){gl_FragColor.a*=max(0.0,1.0-length(coord-clampedCoord));}}`
     const PERSPECTIVE_F_SHADER = `precision lowp float;uniform bool useTextureSpace;uniform sampler2D uSampler;uniform float texSizeW;uniform float texSizeH;varying vec2 vTextureCoord;varying vec4 vColor;uniform float m0;uniform float m1;uniform float m2;uniform float m3;uniform float m4;uniform float m5;uniform float m6;uniform float m7;uniform float m8;void main(){mat3 matrix = mat3(m0,m1,m2,m3,m4,m5,m6,m7,m8);vec2 texSize = vec2(texSizeW,texSizeH);vec2 coord=vTextureCoord*texSize;if(useTextureSpace)coord=coord/texSize*2.0-1.0;vec3 warp=matrix*vec3(coord,1.0);coord=warp.xy/warp.z;if(useTextureSpace)coord=(coord*0.5+0.5)*texSize;vec2 result = coord/texSize;if(result.x < 0.0 || result.y < 0.0 || result.x > 1.0 || result.y>1.0){gl_FragColor=vec4(0.0,0.0,0.0,0.0);return;}gl_FragColor=texture2D(uSampler,result)*vColor;vec2 clampedCoord=clamp(coord,vec2(0.0),texSize);if(coord!=clampedCoord){gl_FragColor.a*=max(0.0,1.0-length(coord-clampedCoord));}}`
-    const q = function(a, d, c){
+    
+	
+	
+	const q = function(a, d, c){
         return Math.max(a, Math.min(d, c))
     }
     const createCustomFilter = function(fShader,uniformObj?){
@@ -86,6 +125,26 @@ namespace SpecialEffects{
             this.uniform.saturation = q(-1, saturation, 1);
         }
     }
+
+	export class EffectHSV extends IEffect{
+		protected uniform = {
+			hue: 0,
+			saturation: 0,
+			value: 0,
+		}
+		public constructor(target){
+            super(target)
+            this.refreshData();
+            target.filters = [createCustomFilter(HSV_F_SHADER,this.uniform)];
+        }
+		/**hue 0~360 saturation 0~1 */
+		public refreshData(hue = 0,saturation = 0, value = 0){
+            this.uniform.hue = hue;q(0, hue, 360);
+            this.uniform.saturation = saturation; q(0, saturation, 1);
+            this.uniform.value = value;q(0, value, 1);
+        }
+	}
+
     export class EffectVibrance extends IEffect{
         protected uniform = {
             amount: 0
