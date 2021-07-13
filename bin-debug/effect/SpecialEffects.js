@@ -126,12 +126,9 @@ var SpecialEffects;
             if (hue === void 0) { hue = 0; }
             if (saturation === void 0) { saturation = 0; }
             if (value === void 0) { value = 0; }
-            this.uniform.hue = hue;
-            q(0, hue, 360);
-            this.uniform.saturation = saturation;
-            q(0, saturation, 1);
-            this.uniform.value = value;
-            q(0, value, 1);
+            this.uniform.hue = q(0, hue, 360);
+            this.uniform.saturation = q(0, saturation, 1);
+            this.uniform.value = q(0, value, 1);
         };
         return EffectHSV;
     }(IEffect));

@@ -1,13 +1,10 @@
 let HSV_F_SHADER = `
-
 	uniform sampler2D uSampler;
-
 	varying vec2 vTextureCoord;
 
 	uniform float hue;
 	uniform float saturation;
 	uniform float value;
-
 
 	mediump vec3 rgb2hsv(mediump vec3 rgb){
 		mediump float mx = max(max(rgb.x, rgb.y), rgb.z);
@@ -108,7 +105,7 @@ let HSV_F_SHADER = `
 		vec3 rgb = ori_rgb.rgb;
 
 		if (hue != 0.0){
-			mediump vec3 hsv = rgb2hsv2(rgb);
+			mediump vec3 hsv = rgb2hsv(rgb);
 
 			// 调整h值
 			mediump float new_hue = hue + hsv.x;
@@ -120,7 +117,7 @@ let HSV_F_SHADER = `
 			mediump float new_value = hsv.z;
 
 			mediump vec3 new_hsv = vec3(new_hue, new_saturation, new_value);
-			rgb = hsv2rgb2(new_hsv);
+			rgb = hsv2rgb(new_hsv);
 		}
 
 		if (value != 0.0){
@@ -135,7 +132,7 @@ let HSV_F_SHADER = `
 			}
 		}
 
-		gl_FragColor = vec4(rgb, ori_rgb.a);
+		gl_FragColor = vec4(rgb , ori_rgb.a);
 	}
 
 `

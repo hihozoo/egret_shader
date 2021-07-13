@@ -54,11 +54,10 @@ var EffectExamp = (function (_super) {
                 this.touchPointComp = null;
             }
         }
-        var effectArr = this.getEffectArr();
-        var effectClass = effectArr[n];
+        this.curData = JSON.parse(JSON.stringify(this.mataData[n]));
+        var effectClass = SpecialEffects[this.curData["class"]];
         var effect = SpecialEffects.createEffects(this.img, effectClass);
         this.curEffect = effect;
-        this.curData = JSON.parse(JSON.stringify(this.mataData[n]));
         if (effectClass == SpecialEffects.EffectPerspective) {
             this.touchPointComp = new EffectPointsUI(this);
             this.addChild(this.touchPointComp);
@@ -91,23 +90,6 @@ var EffectExamp = (function (_super) {
     };
     EffectExamp.prototype.refreshSpecialEffects = function (data) {
         this.curEffect.refreshData(data, this.curData.initPoint);
-    };
-    EffectExamp.prototype.getEffectArr = function () {
-        return [
-            SpecialEffects.EffectBrightnessContrast,
-            SpecialEffects.EffectHueSaturation,
-            SpecialEffects.EffectVibrance,
-            SpecialEffects.EffectDenoise,
-            SpecialEffects.EffectNoise,
-            SpecialEffects.EffectSepia,
-            SpecialEffects.EffectVignette,
-            SpecialEffects.EffectZoomblur,
-            SpecialEffects.EffectTriangleblur,
-            SpecialEffects.EffectTiltShift,
-            SpecialEffects.EffectSwirl,
-            SpecialEffects.EffectBulgePinch,
-            SpecialEffects.EffectPerspective
-        ];
     };
     return EffectExamp;
 }(eui.Component));

@@ -19,7 +19,7 @@ namespace SpecialEffects{
 		vTextureCoord = aTextureCoord;
 		vColor = aColor;
 	}`;
-	
+
     const BRIGHTNESS_CONTRAST_F_SHADER =`precision lowp float;varying vec4 vColor;uniform sampler2D uSampler;uniform float brightness;uniform float contrast;varying vec2 vTextureCoord;void main(){vec4 color=texture2D(uSampler,vTextureCoord)*vColor;color.rgb+=brightness;if(contrast>0.0){color.rgb=(color.rgb-0.5)/(1.0-contrast)+0.5;}else{color.rgb=(color.rgb-0.5)*(1.0+contrast)+0.5;}gl_FragColor=color;}`;
     
 	const HUE_SATURATION_F_SHADER =`
@@ -133,15 +133,15 @@ namespace SpecialEffects{
 			value: 0,
 		}
 		public constructor(target){
-            super(target)
+            super(target);
             this.refreshData();
             target.filters = [createCustomFilter(HSV_F_SHADER,this.uniform)];
         }
 		/**hue 0~360 saturation 0~1 */
 		public refreshData(hue = 0,saturation = 0, value = 0){
-            this.uniform.hue = hue;q(0, hue, 360);
-            this.uniform.saturation = saturation; q(0, saturation, 1);
-            this.uniform.value = value;q(0, value, 1);
+            this.uniform.hue = q(0, hue, 360);
+            this.uniform.saturation = q(0, saturation, 1);
+            this.uniform.value = q(0, value, 1);
         }
 	}
 

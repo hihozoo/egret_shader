@@ -47,11 +47,10 @@ class EffectExamp extends eui.Component{
 				this.touchPointComp = null;
 			}
 		}
-		let effectArr = this.getEffectArr();
-		let effectClass = effectArr[n];
+		this.curData = JSON.parse(JSON.stringify(this.mataData[n]));  
+		let effectClass = SpecialEffects[this.curData["class"]];
 		let effect = SpecialEffects.createEffects(this.img,effectClass)
 		this.curEffect = effect;
-		this.curData = JSON.parse(JSON.stringify(this.mataData[n]));  
 		if(effectClass == SpecialEffects.EffectPerspective){
 			this.touchPointComp = new EffectPointsUI(this);
 			this.addChild(this.touchPointComp);
@@ -82,22 +81,5 @@ class EffectExamp extends eui.Component{
 	}
 	public refreshSpecialEffects(data){
 		this.curEffect.refreshData(data,this.curData.initPoint)
-	}
-	private getEffectArr(){
-		return [
-			SpecialEffects.EffectBrightnessContrast,
-			SpecialEffects.EffectHueSaturation,
-			SpecialEffects.EffectVibrance,
-			SpecialEffects.EffectDenoise,
-			SpecialEffects.EffectNoise,
-			SpecialEffects.EffectSepia,
-			SpecialEffects.EffectVignette,
-			SpecialEffects.EffectZoomblur,
-			SpecialEffects.EffectTriangleblur,
-			SpecialEffects.EffectTiltShift,
-			SpecialEffects.EffectSwirl,
-			SpecialEffects.EffectBulgePinch,
-			SpecialEffects.EffectPerspective
-		]
 	}
 }

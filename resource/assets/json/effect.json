@@ -2,6 +2,7 @@
     "effect": [
         {
             "name": "Brightness/Contrast",
+			"class": "EffectBrightnessContrast",
             "attr": [
                 {
                     "name": "brightness",
@@ -19,6 +20,7 @@
         },
         {
             "name": "Hue/Saturation",
+			"class": "EffectHueSaturation",
             "attr": [
                 {
                     "name": "Hue",
@@ -36,22 +38,23 @@
         },
 		{
             "name": "HSV",
+			"class": "EffectHSV",
             "attr": [
                 {
                     "name": "Hue",
-                    "min": 0,
-                    "max": 360,
+                    "min": -1,
+                    "max": 1,
                     "curNum": 0
                 },
                 {
                     "name": "Saturation",
-                    "min": 0,
+                    "min": -1,
                     "max": 1,
                     "curNum": 0
                 },
 				{
                     "name": "Value",
-                    "min": 0,
+                    "min": -1,
                     "max": 1,
                     "curNum": 0
                 }
@@ -59,6 +62,7 @@
         },
         {
             "name": "Vibrance",
+			"class": "EffectVibrance",
             "attr": [
                 {
                     "name": "Amount",
@@ -70,6 +74,7 @@
         },
         {
             "name": "Denoise",
+			"class": "EffectDenoise",
             "attr": [
                 {
                     "name": "Exponent",
@@ -81,6 +86,7 @@
         },
         {
             "name": "Noise",
+			"class": "EffectNoise",
             "attr": [
                 {
                     "name": "Amount",
@@ -92,6 +98,7 @@
         },
         {
             "name": "Sepia",
+			"class": "EffectSepia",
             "attr": [
                 {
                     "name": "Amount",
@@ -103,6 +110,7 @@
         },
         {
             "name": "Vignette",
+			"class": "EffectVignette",
             "attr": [
                 {
                     "name": "Size",
@@ -120,6 +128,7 @@
         },
         {
             "name": "Zoom Blur",
+			"class": "EffectZoomblur",
             "attr": [
                 {
                     "name": "Strength",
@@ -143,6 +152,7 @@
         },
         {
             "name": "Triangle Blur",
+			"class": "EffectTriangleblur",
             "attr": [
                 {
                     "name": "delta",
@@ -154,6 +164,7 @@
         },
         {
             "name": "Tilt Shift",
+			"class": "EffectTiltShift",
             "attr": [
                 {
                     "name": "blurRadius",
@@ -195,6 +206,7 @@
         },
         {
             "name": "Swirl",
+			"class": "EffectSwirl",
             "attr": [
                 {
                     "name": "angle",
@@ -224,6 +236,7 @@
         },
         {
             "name": "Bulge Pinch",
+			"class": "EffectBulgePinch",
             "attr": [
                 {
                     "name": "Strength",
@@ -253,6 +266,7 @@
         },
         {
             "name": "Perspective",
+			"class": "EffectPerspective",
             "attr": [
             ],
             "initPoint":[
